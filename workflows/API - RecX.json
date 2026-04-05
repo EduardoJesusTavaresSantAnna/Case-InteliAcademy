@@ -1,10 +1,10 @@
 {
-  "name": "API - RecX",
+  "name": "API - RecX Chat",
   "nodes": [
     {
       "parameters": {
         "httpMethod": "POST",
-        "path": "recomendar",
+        "path": "recx-chat",
         "responseMode": "responseNode",
         "options": {}
       },
@@ -14,23 +14,19 @@
         0,
         0
       ],
-      "id": "93f462a1-ee1e-43ef-8b3c-bd617b375d09",
+      "id": "2cb2cae5-41e3-4fe3-a21d-5f35b575752f",
       "name": "Webhook",
-      "webhookId": "2664ed34-7749-4344-86c3-ede5d44849a6"
+      "webhookId": "3b9e881e-3d14-4e55-b7fc-6e25d749b786"
     },
     {
       "parameters": {
-        "url": "https://fsbdzxztnabrvfubowac.supabase.co/rest/v1/relatorios?order=criado_em.desc&limit=3",
+        "url": "https://fsbdzxztnabrvfubowac.supabase.co/rest/v1/relatorios?order=criado_em.desc&limit=2&select=resumo,tendencias,oportunidades,analytics",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
               "name": "apikey",
               "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzYmR6eHp0bmFicnZmdWJvd2FjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMzA4NDksImV4cCI6MjA5MDkwNjg0OX0.8IUv2Z8-xSFRr6HivcG8RJw8r6FZjFpFCMA92DBGSxk"
-            },
-            {
-              "name": "Authorization",
-              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzYmR6eHp0bmFicnZmdWJvd2FjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMzA4NDksImV4cCI6MjA5MDkwNjg0OX0.8IUv2Z8-xSFRr6HivcG8RJw8r6FZjFpFCMA92DBGSxk"
             }
           ]
         },
@@ -42,12 +38,12 @@
         208,
         0
       ],
-      "id": "572820d0-bda2-4345-a2c1-4dcb36d69d6c",
+      "id": "bec40381-7774-48f8-906b-643a5e621bc5",
       "name": "HTTP Request"
     },
     {
       "parameters": {
-        "jsCode": "const webhookData = $('Webhook').first().json;\nconst httpData = $input.all();\n\nconst areaEscolhida = webhookData.body?.area || 'tecnologia';\n\nconst relatorios = httpData.map(item => {\n  const r = item.json;\n  return `${r.resumo || ''} ${r.tendencias || ''} ${r.oportunidades || ''}`;\n}).join(' ');\n\nreturn [{\n  json: {\n    area: areaEscolhida,\n    contexto: relatorios.slice(0, 3000)\n  }\n}];"
+        "jsCode": "const webhookData = $('Webhook').first().json;\nconst httpData = $input.all();\n\nconst area = webhookData.body?.area || 'geral';\nconst mensagem = webhookData.body?.mensagem || '';\nconst historico = webhookData.body?.historico || [];\n\n// Monta contexto dos relatórios\nconst contexto = httpData.map(item => {\n  const r = item.json;\n  return `${r.resumo || ''} ${r.tendencias || ''} ${r.oportunidades || ''}`;\n}).join(' ').slice(0, 2500);\n\n// Formata histórico da conversa\nconst historicoFormatado = historico.map(msg =>\n  `${msg.role === 'user' ? 'Usuário' : 'RecX'}: ${msg.content}`\n).join('\\n');\n\nreturn [{\n  json: {\n    area,\n    mensagem,\n    contexto,\n    historico: historicoFormatado\n  }\n}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -55,13 +51,13 @@
         416,
         0
       ],
-      "id": "fbaa4d73-07d5-43db-b424-abb34b2e6860",
+      "id": "bc76f9f2-376b-46bf-ac20-3e948aff9aaf",
       "name": "Code in JavaScript"
     },
     {
       "parameters": {
         "promptType": "define",
-        "text": "=Você é um consultor especialista em negócios e inovação com IA trabalhando para o Inteli Academy.\n\nCom base nas notícias e tendências de IA abaixo, gere recomendações específicas para a área de: {{ $json.area }}\n\nContexto das últimas notícias de IA:\n{{ $json.contexto }}\n\nResponda em português com:\n\n## 🎯 Área Analisada\n{{ $json.area }}\n\n## 📈 Como a IA está impactando essa área\nExplique em 3 pontos como a IA está transformando essa área específica.\n\n## 💡 3 Ideias de Negócio Recomendadas\nPara cada ideia inclua: nome, descrição, tecnologia de IA necessária e potencial de mercado.\n\n## ⚠️ Desafios e Riscos\nListe 2 principais desafios para quem quer entrar nessa área com IA.\n\n## 🚀 Por onde começar\nDê 3 passos práticos para quem quer explorar essa oportunidade.",
+        "text": "=Você é o RecX, um agente especialista em oportunidades de mercado com IA da Inteli Academy. Você tem acesso aos dados mais recentes coletados pelo sistema e conversa diretamente com o usuário para explorar ideias de negócio.\n\nÁrea de interesse atual: {{ $json.area }}\n\nContexto das últimas notícias e tendências de IA coletadas pelo sistema:\n{{ $json.contexto }}\n\nHistórico da conversa:\n{{ $json.historico }}\n\nMensagem atual do usuário:\n{{ $json.mensagem }}\n\nREGRAS:\n- Responda em português de forma direta e conversacional\n- Use os dados do contexto para embasar suas respostas\n- Se for a primeira mensagem, apresente as principais oportunidades para a área escolhida\n- Nas mensagens seguintes, aprofunde os temas que o usuário demonstrar interesse\n- Seja específico — cite empresas, valores e tendências reais do contexto\n- Faça perguntas para entender melhor o que o usuário quer explorar\n- Nunca invente dados que não estão no contexto fornecido",
         "batching": {}
       },
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
@@ -70,7 +66,7 @@
         624,
         0
       ],
-      "id": "8a5ee028-722a-4611-bbad-075e1a055245",
+      "id": "f59ef8c7-1fc2-43f4-b1f9-6d60d6887b93",
       "name": "Basic LLM Chain"
     },
     {
@@ -82,9 +78,9 @@
       "typeVersion": 1,
       "position": [
         624,
-        160
+        144
       ],
-      "id": "1b77fa01-ce0a-44fc-9867-7f86ec8485f5",
+      "id": "8a9d13a4-6bcb-48a9-b1d7-7c0c5453f04b",
       "name": "Groq Chat Model",
       "credentials": {
         "groqApi": {
@@ -104,7 +100,7 @@
         976,
         0
       ],
-      "id": "769a7e82-4b40-4853-a8fb-1a41a232507a",
+      "id": "eb14fd63-ffc8-4151-b201-27a9e2a429d3",
       "name": "Respond to Webhook"
     }
   ],
@@ -171,11 +167,11 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "0da46b67-3d54-4acc-b107-bf915486042e",
+  "versionId": "72b56ecc-bffe-4a94-aa3f-96d1af3db147",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "52d761cfee50542f1d45516f1df50104d65258591c8c86e443aaf0e8e515dadf"
   },
-  "id": "z1o2uKrqfCgtsqt4",
+  "id": "QCuZE7Jm11NbzTRq",
   "tags": []
 }
