@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vector Scouter — Illuminated Intelligence</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">VS</div>
+    <div class="logo-info">
+      <div class="logo-name">Vector Scouter</div>
+      <div class="logo-sub">Illuminated Intelligence</div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section">Main</div>
+
+    <button class="nav-item active" onclick="showPage('dashboard', this)">
+      <span class="nav-icon">⊞</span>
+      <span class="nav-label">Dashboard</span>
+    </button>
+
+    <button class="nav-item" onclick="showPage('archive', this)">
+      <span class="nav-icon">≡</span>
+      <span class="nav-label">Archive</span>
+    </button>
+
+    <div class="nav-divider"></div>
+    <div class="nav-section">Engines</div>
+
+    <button class="nav-item" onclick="showPage('recx', this)">
+      <span class="nav-icon">✦</span>
+      <span class="nav-label">RecX Engine</span>
+      <span class="nav-tag">Beta</span>
+    </button>
+
+    <button class="nav-item" onclick="showPage('validx', this)">
+      <span class="nav-icon">◎</span>
+      <span class="nav-label">ValidX Chat</span>
+      <span class="nav-tag">Beta</span>
+    </button>
+
+    <div class="nav-divider"></div>
+    <div class="nav-section">Workspace</div>
+
+    <button class="nav-item" onclick="showPage('notebook', this)">
+      <span class="nav-icon">◈</span>
+      <span class="nav-label">Notebook</span>
+    </button>
+  </nav>
+
+  <div class="sidebar-bottom">
+    <div class="sidebar-status">
+      <div class="status-dot"></div>
+      <span class="status-label">System active</span>
+    </div>
+    <button class="theme-toggle" onclick="toggleTheme()">
+      <span class="theme-icon" id="theme-icon">○</span>
+      <span class="theme-label" id="theme-lbl">Light mode</span>
+      <div class="theme-pill" id="theme-pill">
+        <div class="theme-knob"></div>
+      </div>
+    </button>
+  </div>
+</aside>
+
+<!-- ── MAIN ── -->
+<div class="main">
+
+  <!-- DASHBOARD -->
+  <div id="page-dashboard" class="page active">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="topbar-path">Vector Scouter <span class="sep">/</span></div>
+        <div class="topbar-current">Main Dashboard</div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-outline" onclick="buscarRelatorio('dash-report')">Sync archive</button>
+        <button class="btn btn-primary" onclick="showPage('validx', document.querySelectorAll('.nav-item')[3])">New Validation</button>
+      </div>
+    </div>
+
+    <div class="dash-scroll">
+      <div class="dash-hero">
+        <div class="dash-hero-main">
+          <div class="dash-kicker">AI Intelligence Hub</div>
+          <h1>O que está<br>acontecendo em <em>IA</em></h1>
+          <p>Notícias, tendências e oportunidades no mundo da Inteligência Artificial — curadas automaticamente, toda semana, para quem quer estar à frente.</p>
+          <div class="btn-row">
+            <button class="btn btn-primary" onclick="buscarRelatorio('dash-report')">Ver último relatório</button>
+            <button class="btn btn-outline" onclick="showPage('recx', document.querySelectorAll('.nav-item')[2])">Explorar RecX →</button>
+          </div>
+
+          <div class="newsletter-signup">
+            <div class="newsletter-label">Receba o relatório semanal no seu email</div>
+            <div class="newsletter-form">
+              <input
+                type="email"
+                id="newsletter-email"
+                class="newsletter-input"
+                placeholder="seu@email.com"
+                onkeydown="if(event.key==='Enter') cadastrarNewsletter()"
+              />
+              <button class="btn btn-primary" onclick="cadastrarNewsletter()" id="newsletter-btn">Receber agora</button>
+            </div>
+            <div class="newsletter-hint">Você receberá o relatório imediatamente e toda semana automaticamente.</div>
+          </div>
+        </div>
+        <div class="dash-hero-side" id="hero-side">
+          <div class="trend-pill">
+            <div class="trend-pill-label">Trend Callout</div>
+            <div class="trend-pill-title">Carregando tendências...</div>
+            <div class="trend-pill-desc">Sincronizando com o archive.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="stat-box-left">
+            <div class="stat-label">Fontes ativas</div>
+            <div class="stat-value">7</div>
+          </div>
+          <div class="stat-icon">◈</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-box-left">
+            <div class="stat-label">News da semana</div>
+            <div class="stat-value">19+</div>
+          </div>
+          <div class="stat-icon">↗</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-box-left">
+            <div class="stat-label">Áreas cobertas</div>
+            <div class="stat-value">8</div>
+          </div>
+          <div class="stat-icon">◉</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-box-left">
+            <div class="stat-label">Última geração</div>
+            <div class="stat-value" id="stat-data">—</div>
+          </div>
+          <div class="stat-icon">↻</div>
+        </div>
+      </div>
+
+      <div class="dash-content">
+        <div id="dash-report">
+          <div class="msg-box">
+            <h3>Archive not loaded</h3>
+            <p>Clique em "Sync archive" para buscar os dados mais recentes.</p>
+            <button class="btn btn-primary" style="margin: 0 auto" onclick="buscarRelatorio('dash-report')">Sync now</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="page-footer">
+        <div class="footer-brand">Vector Scouter</div>
+        <div class="footer-copy">The Illuminated Archive · Inteli Academy</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ARCHIVE -->
+  <div id="page-archive" class="page">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="topbar-path">Vector Scouter <span class="sep">/</span></div>
+        <div class="topbar-current">Archive</div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-outline" onclick="buscarRelatorio('archive-report')">↻ Atualizar</button>
+      </div>
+    </div>
+
+    <div class="archive-header">
+      <h1><span>Intelligence</span> Chronicle</h1>
+      <p>A curated repository of vector-based analysis, distilling complex weekly patterns into illuminated strategic insights.</p>
+    </div>
+
+    <div class="archive-content">
+      <div id="archive-report">
+        <div class="loader">
+          <div class="loader-ring"></div>
+          <div class="loader-text">Loading archive</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-footer">
+      <div class="footer-brand">Vector Scouter</div>
+      <div class="footer-copy">Neural Policy · System Status</div>
+    </div>
+  </div>
+
+  <!-- RECX ENGINE -->
+  <div id="page-recx" class="page">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="topbar-path">Vector Scouter <span class="sep">/</span></div>
+        <div class="topbar-current">RecX Engine</div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-ghost" onclick="clearRecxChat()">Nova conversa</button>
+        <button class="btn btn-outline" id="btn-save-recx" onclick="saveRecxToNotebook()" style="display:none">↓ Salvar no Notebook</button>
+      </div>
+    </div>
+
+    <div class="recx-wrap">
+      <!-- Sidebar de áreas -->
+      <div class="recx-panel">
+        <div class="recx-panel-title">RecX Engine</div>
+        <p class="recx-panel-desc">Selecione uma área e converse com o RecX para explorar oportunidades de negócio com IA.</p>
+
+        <div class="filter-tag">Área de mercado</div>
+        <div class="area-list">
+          <button class="area-btn" onclick="selectArea('esportes', this)"><span class="area-btn-icon">⚽</span> Esportes</button>
+          <button class="area-btn" onclick="selectArea('saúde', this)"><span class="area-btn-icon">🏥</span> Saúde</button>
+          <button class="area-btn" onclick="selectArea('educação', this)"><span class="area-btn-icon">📚</span> Educação</button>
+          <button class="area-btn" onclick="selectArea('finanças', this)"><span class="area-btn-icon">💰</span> Finanças</button>
+          <button class="area-btn" onclick="selectArea('jurídico', this)"><span class="area-btn-icon">⚖️</span> Jurídico</button>
+          <button class="area-btn" onclick="selectArea('agronegócio', this)"><span class="area-btn-icon">🌱</span> Agronegócio</button>
+          <button class="area-btn" onclick="selectArea('varejo', this)"><span class="area-btn-icon">🛍️</span> Varejo</button>
+          <button class="area-btn" onclick="selectArea('logística', this)"><span class="area-btn-icon">🚚</span> Logística</button>
+        </div>
+      </div>
+
+      <!-- Chat área -->
+      <div class="recx-main">
+        <div class="recx-chat-header">
+          <div class="recx-area-badge" id="recx-area-label" style="display:none">Área selecionada</div>
+          <div style="font-family:'Inter',sans-serif;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted)" id="recx-hint">Selecione uma área para começar</div>
+        </div>
+
+        <div class="recx-thread" id="recx-thread">
+          <div class="chat-empty">
+            <div class="chat-empty-icon">✦</div>
+            <h3>Selecione uma área ao lado</h3>
+            <p>O RecX irá apresentar as oportunidades e você pode continuar conversando para explorar mais a fundo.</p>
+          </div>
+        </div>
+
+        <div class="recx-input-area" id="recx-input-area">
+          <div class="recx-composer-wrap">
+            <textarea
+              id="recx-input"
+              placeholder="Continue a conversa... pergunte sobre uma oportunidade específica"
+              rows="1"
+            ></textarea>
+            <button class="recx-send" id="recx-send-btn" onclick="sendRecxMessage()">Enviar ▶</button>
+          </div>
+          <div class="composer-hint">Enter para enviar · Shift + Enter para nova linha</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VALIDX -->
+  <div id="page-validx" class="page">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="topbar-path">Vector Scouter <span class="sep">/</span></div>
+        <div class="topbar-current">ValidX Chat</div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-ghost" onclick="clearValidxChat()">New validation</button>
+        <button class="btn btn-outline" id="btn-save-validx" onclick="saveValidxToNotebook()" style="display:none">↓ Salvar no Notebook</button>
+      </div>
+    </div>
+
+    <div class="validx-wrap">
+      <div class="validx-header">
+        <div class="validx-status">ValidX active</div>
+        <h2>Intelligence <em>Validation</em></h2>
+        <p>O ValidX Agent cruza dados de mercado, tendências de IA e viabilidade técnica para determinar o potencial da sua hipótese de negócio.</p>
+      </div>
+
+      <div class="chat-thread" id="validx-thread"></div>
+
+      <div class="chat-composer">
+        <div class="composer-wrap">
+          <textarea
+            id="validx-input"
+            placeholder="Describe your model's concept, including the core problem and your proposed solution..."
+            rows="1"
+          ></textarea>
+          <button class="validate-btn" id="validx-send-btn" onclick="sendValidxMessage()">Validate ▶</button>
+        </div>
+        <div class="composer-hint">Enter to send · Shift + Enter for new line · Powered by RecX Intelligence Engine</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOTEBOOK -->
+  <div id="page-notebook" class="page">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="topbar-path">Vector Scouter <span class="sep">/</span></div>
+        <div class="topbar-current">Notebook</div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-ghost" onclick="clearNotebook()">Limpar tudo</button>
+      </div>
+    </div>
+
+    <div class="notebook-header">
+      <h1>Idea <span>Notebook</span></h1>
+      <p>Suas conversas salvas do RecX e ValidX. Adicione anotações, revisit ideias e construa seu portfólio de oportunidades com IA.</p>
+    </div>
+
+    <div class="notebook-content">
+      <div class="nb-grid" id="notebook-list"></div>
+    </div>
+
+    <div class="page-footer">
+      <div class="footer-brand">Vector Scouter</div>
+      <div class="footer-copy">Idea Workspace · Inteli Academy</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+<script>
+  // Fix recx area badge visibility
+  const origSelectArea = selectArea;
+  window.selectArea = function(area, el) {
+    origSelectArea(area, el);
+    const badge = document.getElementById('recx-area-badge');
+    const hint = document.getElementById('recx-hint');
+    const label = document.getElementById('recx-area-label');
+    if (label) { label.textContent = area; label.style.display = 'inline-flex'; }
+    if (hint) hint.style.display = 'none';
+  };
+</script>
+</body>
+</html>

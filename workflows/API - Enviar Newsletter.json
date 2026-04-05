@@ -1,0 +1,283 @@
+{
+  "name": "API - Enviar Newsletter",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "enviar-newsletter",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "36294a67-2901-4ca1-afcb-bd8d5626dbec",
+      "name": "Webhook",
+      "webhookId": "fc495792-37c3-4618-8aef-f64c6109138d"
+    },
+    {
+      "parameters": {
+        "url": "https://fsbdzxztnabrvfubowac.supabase.co/rest/v1/relatorios?order=criado_em.desc&limit=1&select=*",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzYmR6eHp0bmFicnZmdWJvd2FjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMzA4NDksImV4cCI6MjA5MDkwNjg0OX0.8IUv2Z8-xSFRr6HivcG8RJw8r6FZjFpFCMA92DBGSxk"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "dd3680e3-d4b6-4e8a-81e2-0c1d5c20c5a9",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://fsbdzxztnabrvfubowac.supabase.co/rest/v1/newsletter_subscribers?on_conflict=email",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzYmR6eHp0bmFicnZmdWJvd2FjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMzA4NDksImV4cCI6MjA5MDkwNjg0OX0.8IUv2Z8-xSFRr6HivcG8RJw8r6FZjFpFCMA92DBGSxk"
+            },
+            {
+              "name": "Prefer",
+              "value": "resolution=merge-duplicates"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "=application/json",
+        "body": "={\"email\": {{ JSON.stringify($json.email) }}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        624,
+        0
+      ],
+      "id": "0fe1d282-c713-4846-8371-59a0d6f7860d",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "fromEmail": "eduardo.santanna@sou.inteli.edu.br",
+        "toEmail": "={{ $('CodeG').first().json.email }}",
+        "subject": "={{ $('CodeG').first().json.assunto }}",
+        "html": "={{ $('CodeG').first().json.htmlEmail }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        832,
+        0
+      ],
+      "id": "2faef58a-a5ad-4422-9a03-e26a8adcdeb4",
+      "name": "Send an Email",
+      "webhookId": "9375c840-264b-4a89-8cc9-b21acf5f0bf3",
+      "credentials": {
+        "smtp": {
+          "id": "ixw10UZ95kqvsPA5",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1040,
+        0
+      ],
+      "id": "5aa77c77-a435-416b-b8b2-b9206d9b7423",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "const webhookData = $('Webhook').first().json;\nconst httpData = $input.all();\n\nconst email = webhookData.body?.email || '';\nconst relatorio = httpData[0]?.json || {};\n\nconst data = relatorio.criado_em\n  ? new Date(relatorio.criado_em).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })\n  : 'Esta semana';\n\nfunction mdToHtml(text) {\n  if (!text) return '';\n  let html = text\n    .replace(/\\\\n/g, '\\n')\n    .replace(/\\r\\n/g, '\\n');\n\n  html = html.replace(/^## .+\\n?/, '');\n\n  html = html.replace(/^\\*\\*(\\d+\\..+?)\\*\\*$/gm,\n    `<div style=\"font-family:Georgia,serif;font-size:16px;font-weight:700;font-style:italic;color:#f0f0f0;margin:28px 0 12px;padding-left:14px;border-left:3px solid #00CED1;line-height:1.4;\">$1</div>`);\n\n  html = html.replace(/\\*\\*(.*?)\\*\\*/g, '<strong style=\"color:#e0e0e0;font-weight:600;\">$1</strong>');\n\n  html = html.replace(/^(Fonte|Data|Setor|Gatilho|Proposta de valor|Modelo de negócio|Barreira principal|Potencial|Evidências|Análise|Impacto Brasil|Horizonte|Contexto técnico|Por que importa|O que aconteceu|Area|Base|Descricao):\\s*(.+)$/gm,\n    `<table cellpadding=\"0\" cellspacing=\"0\" style=\"margin:4px 0;\"><tr><td style=\"font-family:'Helvetica Neue',Arial,sans-serif;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#00CED1;font-weight:600;white-space:nowrap;padding-right:12px;vertical-align:top;padding-top:2px;min-width:100px;\">$1</td><td style=\"font-size:12px;color:#888;font-weight:300;line-height:1.6;\">$2</td></tr></table>`);\n\n  html = html.replace(/(https?:\\/\\/[^\\s<\"]+)/g,\n    '<a href=\"$1\" style=\"color:#00CED1;text-decoration:none;font-size:11px;\">↗ Ver fonte</a>');\n\n  html = html.replace(/^---+$/gm,\n    '<div style=\"border-top:1px solid #1e1e1e;margin:28px 0;\"></div>');\n\n  const blocks = html.split(/\\n{2,}/);\n  html = blocks.map(block => {\n    block = block.trim();\n    if (!block) return '';\n    if (block.startsWith('<div') || block.startsWith('<a') || block.startsWith('<table')) return block;\n    const lines = block.split('\\n').filter(l => l.trim());\n    if (!lines.length) return '';\n    return `<p style=\"font-size:13px;line-height:1.85;color:#888;font-weight:300;margin:8px 0;\">${lines.join('<br>')}</p>`;\n  }).join('\\n');\n\n  return html;\n}\n\nconst resumoHtml = mdToHtml(relatorio.resumo || '');\nconst tendenciasHtml = mdToHtml(relatorio.tendencias || '');\nconst oportunidadesHtml = mdToHtml(relatorio.oportunidades || '');\n\nconst htmlEmail = `<!DOCTYPE html>\n<html lang=\"pt-BR\">\n<head>\n<meta charset=\"UTF-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n<title>Vector Scouter — Relatório Semanal de IA</title>\n</head>\n<body style=\"margin:0;padding:0;background:#0a0a0a;font-family:'Helvetica Neue',Arial,sans-serif;\">\n\n<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#0a0a0a;padding:40px 20px;\">\n<tr><td align=\"center\">\n<table width=\"640\" cellpadding=\"0\" cellspacing=\"0\">\n\n  <!-- Header -->\n  <tr><td style=\"border-bottom:1px solid #1e1e1e;padding-bottom:24px;\">\n    <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n      <tr>\n        <td style=\"padding-top:24px;\">\n          <span style=\"background:#00CED1;color:#0a0a0a;font-size:10px;font-weight:700;letter-spacing:2px;padding:6px 12px;border-radius:4px;font-family:'Helvetica Neue',Arial,sans-serif;\">VS</span>\n          <span style=\"font-family:Georgia,serif;font-size:17px;font-style:italic;color:#00CED1;margin-left:12px;\">Vector Scouter</span>\n        </td>\n        <td align=\"right\" style=\"padding-top:24px;\">\n          <span style=\"font-family:'Helvetica Neue',Arial,sans-serif;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#444;\">${data}</span>\n        </td>\n      </tr>\n    </table>\n  </td></tr>\n\n  <!-- Hero -->\n  <tr><td style=\"padding:56px 0 48px;\">\n    <div style=\"font-family:'Helvetica Neue',Arial,sans-serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#00CED1;margin-bottom:20px;\">AI Intelligence Hub · Inteli Academy</div>\n    <h1 style=\"font-family:Georgia,serif;font-size:48px;font-weight:700;font-style:italic;color:#f0f0f0;margin:0 0 20px;line-height:1.05;letter-spacing:-2px;\">O que está<br>acontecendo em <span style=\"color:#00CED1;\">IA</span></h1>\n    <p style=\"font-size:14px;color:#666;line-height:1.8;margin:0 0 32px;font-weight:300;max-width:480px;\">Notícias, tendências e oportunidades no mundo da Inteligência Artificial — curadas automaticamente para quem quer estar à frente.</p>\n    <table cellpadding=\"0\" cellspacing=\"0\">\n      <tr><td style=\"background:#111;border:1px solid #1e1e1e;border-radius:6px;padding:14px 20px;\">\n        <span style=\"font-family:'Helvetica Neue',Arial,sans-serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#555;\">Edição semanal · </span>\n        <span style=\"font-family:Georgia,serif;font-size:13px;font-style:italic;color:#888;\">${data}</span>\n      </td></tr>\n    </table>\n  </td></tr>\n\n  <!-- Divider -->\n  <tr><td style=\"border-top:1px solid #1e1e1e;\"></td></tr>\n\n  <!-- Notícias -->\n  <tr><td style=\"padding:48px 0 40px;\">\n    <div style=\"font-family:'Helvetica Neue',Arial,sans-serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#00CED1;border-left:3px solid #00CED1;padding-left:12px;margin-bottom:32px;\">Notícias Principais</div>\n    ${resumoHtml}\n  </td></tr>\n\n  <!-- Divider -->\n  <tr><td style=\"border-top:1px solid #1e1e1e;\"></td></tr>\n\n  <!-- Tendências -->\n  <tr><td style=\"padding:48px 0 40px;\">\n    <div style=\"font-family:'Helvetica Neue',Arial,sans-serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#FFD700;border-left:3px solid #FFD700;padding-left:12px;margin-bottom:32px;\">Tendências Emergentes</div>\n    ${tendenciasHtml}\n  </td></tr>\n\n  <!-- Divider -->\n  <tr><td style=\"border-top:1px solid #1e1e1e;\"></td></tr>\n\n  <!-- Oportunidades -->\n  <tr><td style=\"padding:48px 0 40px;\">\n    <div style=\"font-family:'Helvetica Neue',Arial,sans-serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#00CED1;border-left:3px solid #00CED1;padding-left:12px;margin-bottom:32px;\">Oportunidades de Mercado</div>\n    ${oportunidadesHtml}\n  </td></tr>\n\n  <!-- CTA -->\n  <tr><td style=\"padding:0 0 48px;\">\n    <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#111;border:1px solid #1e1e1e;border-radius:8px;\">\n      <tr><td style=\"padding:32px 36px;\">\n        <div style=\"font-family:'Helvetica Neue',Arial,sans-serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#00CED1;margin-bottom:12px;\">Explore mais</div>\n        <div style=\"font-family:Georgia,serif;font-size:20px;font-style:italic;color:#f0f0f0;margin-bottom:8px;\">RecX Engine & ValidX</div>\n        <p style=\"font-size:12px;color:#666;line-height:1.7;margin:0 0 24px;font-weight:300;\">Use o RecX para descobrir oportunidades por área de mercado e o ValidX para validar suas ideias com dados reais.</p>\n        <a href=\"http://localhost:5678\" style=\"display:inline-block;background:#00CED1;color:#0a0a0a;font-family:'Helvetica Neue',Arial,sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:12px 24px;border-radius:4px;text-decoration:none;\">Acessar plataforma →</a>\n      </td></tr>\n    </table>\n  </td></tr>\n\n  <!-- Footer -->\n  <tr><td style=\"border-top:1px solid #1e1e1e;padding:24px 0;\">\n    <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n      <tr>\n        <td>\n          <span style=\"font-family:Georgia,serif;font-size:13px;font-style:italic;color:#00CED1;\">Vector Scouter</span>\n          <div style=\"font-family:'Helvetica Neue',Arial,sans-serif;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#333;margin-top:4px;\">The Illuminated Archive · Inteli Academy</div>\n        </td>\n        <td align=\"right\">\n          <a href=\"http://localhost:5678/webhook/cancelar-newsletter?email=${email}\" style=\"font-family:'Helvetica Neue',Arial,sans-serif;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#444;text-decoration:none;border-bottom:1px solid #333;padding-bottom:1px;\">Cancelar inscrição</a>\n        </td>\n      </tr>\n    </table>\n  </td></tr>\n\n</table>\n</td></tr>\n</table>\n\n</body>\n</html>`;\n\nreturn [{\n  json: {\n    email,\n    htmlEmail,\n    assunto: `Vector Scouter — Relatório Semanal de IA · ${data}`\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "c417c206-5488-4570-9fef-1f279edc7510",
+      "name": "CodeG"
+    },
+    {
+      "parameters": {
+        "path": "cancelar-newsletter",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        192
+      ],
+      "id": "019549b8-aa44-4f37-8102-9c95a9e696e8",
+      "name": "Webhook1",
+      "webhookId": "ab998e53-f2ee-4cff-a8de-1a5239217abf"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://fsbdzxztnabrvfubowac.supabase.co/rest/v1/newsletter_subscribers?email=eq.{{ $('Webhook1').first().json.query.email }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzYmR6eHp0bmFicnZmdWJvd2FjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMzA4NDksImV4cCI6MjA5MDkwNjg0OX0.8IUv2Z8-xSFRr6HivcG8RJw8r6FZjFpFCMA92DBGSxk"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "{\"ativo\": false}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        208,
+        192
+      ],
+      "id": "b06aa935-93e6-44b3-a6db-87f37757d971",
+      "name": "HTTP Request2"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "<!DOCTYPE html>\n<html lang=\"pt-BR\">\n<head>\n<meta charset=\"UTF-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n<title>Vector Scouter — Cancelar Inscrição</title>\n<style>\n  body { margin:0; padding:0; background:#0a0a0a; font-family:'Helvetica Neue',Arial,sans-serif; display:flex; align-items:center; justify-content:center; min-height:100vh; }\n  .box { text-align:center; padding:48px; max-width:400px; }\n  .icon { font-size:48px; margin-bottom:24px; }\n  h1 { font-family:Georgia,serif; font-size:28px; font-style:italic; color:#f0f0f0; margin:0 0 12px; }\n  p { font-size:13px; color:#666; line-height:1.7; margin:0; font-weight:300; }\n  .badge { display:inline-block; background:rgba(0,206,209,0.1); color:#00CED1; font-size:9px; letter-spacing:2px; text-transform:uppercase; padding:4px 12px; border-radius:3px; margin-bottom:24px; }\n</style>\n</head>\n<body>\n  <div class=\"box\">\n    <div class=\"icon\">✓</div>\n    <div class=\"badge\">Vector Scouter</div>\n    <h1>Inscrição cancelada</h1>\n    <p>Você não receberá mais o relatório semanal de IA. Se mudar de ideia, basta se cadastrar novamente no site.</p>\n  </div>\n</body>\n</html>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        416,
+        192
+      ],
+      "id": "1ee5859a-939d-4d57-bc0e-9db4ff8d2633",
+      "name": "Respond to Webhook1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "CodeG",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Send an Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send an Email": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CodeG": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "065e6505-6640-4bf4-a010-58d020b15e63",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "52d761cfee50542f1d45516f1df50104d65258591c8c86e443aaf0e8e515dadf"
+  },
+  "id": "AQAMzrRU84P6RIMZ",
+  "tags": []
+}

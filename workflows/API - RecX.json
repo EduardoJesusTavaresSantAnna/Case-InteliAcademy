@@ -1,0 +1,181 @@
+{
+  "name": "API - RecX",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "recomendar",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "93f462a1-ee1e-43ef-8b3c-bd617b375d09",
+      "name": "Webhook",
+      "webhookId": "2664ed34-7749-4344-86c3-ede5d44849a6"
+    },
+    {
+      "parameters": {
+        "url": "https://fsbdzxztnabrvfubowac.supabase.co/rest/v1/relatorios?order=criado_em.desc&limit=3",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzYmR6eHp0bmFicnZmdWJvd2FjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMzA4NDksImV4cCI6MjA5MDkwNjg0OX0.8IUv2Z8-xSFRr6HivcG8RJw8r6FZjFpFCMA92DBGSxk"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzYmR6eHp0bmFicnZmdWJvd2FjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMzA4NDksImV4cCI6MjA5MDkwNjg0OX0.8IUv2Z8-xSFRr6HivcG8RJw8r6FZjFpFCMA92DBGSxk"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "572820d0-bda2-4345-a2c1-4dcb36d69d6c",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "const webhookData = $('Webhook').first().json;\nconst httpData = $input.all();\n\nconst areaEscolhida = webhookData.body?.area || 'tecnologia';\n\nconst relatorios = httpData.map(item => {\n  const r = item.json;\n  return `${r.resumo || ''} ${r.tendencias || ''} ${r.oportunidades || ''}`;\n}).join(' ');\n\nreturn [{\n  json: {\n    area: areaEscolhida,\n    contexto: relatorios.slice(0, 3000)\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "fbaa4d73-07d5-43db-b424-abb34b2e6860",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Você é um consultor especialista em negócios e inovação com IA trabalhando para o Inteli Academy.\n\nCom base nas notícias e tendências de IA abaixo, gere recomendações específicas para a área de: {{ $json.area }}\n\nContexto das últimas notícias de IA:\n{{ $json.contexto }}\n\nResponda em português com:\n\n## 🎯 Área Analisada\n{{ $json.area }}\n\n## 📈 Como a IA está impactando essa área\nExplique em 3 pontos como a IA está transformando essa área específica.\n\n## 💡 3 Ideias de Negócio Recomendadas\nPara cada ideia inclua: nome, descrição, tecnologia de IA necessária e potencial de mercado.\n\n## ⚠️ Desafios e Riscos\nListe 2 principais desafios para quem quer entrar nessa área com IA.\n\n## 🚀 Por onde começar\nDê 3 passos práticos para quem quer explorar essa oportunidade.",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        624,
+        0
+      ],
+      "id": "8a5ee028-722a-4611-bbad-075e1a055245",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        624,
+        160
+      ],
+      "id": "1b77fa01-ce0a-44fc-9867-7f86ec8485f5",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "jJjDDqvzfbusOUqr",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        976,
+        0
+      ],
+      "id": "769a7e82-4b40-4853-a8fb-1a41a232507a",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "0da46b67-3d54-4acc-b107-bf915486042e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "52d761cfee50542f1d45516f1df50104d65258591c8c86e443aaf0e8e515dadf"
+  },
+  "id": "z1o2uKrqfCgtsqt4",
+  "tags": []
+}

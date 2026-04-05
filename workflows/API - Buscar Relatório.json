@@ -1,0 +1,98 @@
+{
+  "name": "API - Buscar Relatório",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "buscar-relatorio",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "6698cc4e-788e-4403-b0cf-4f9e8b5058f6",
+      "name": "Webhook",
+      "webhookId": "ffab4176-0a0a-4752-9214-2ba60dea81aa"
+    },
+    {
+      "parameters": {
+        "url": "https://fsbdzxztnabrvfubowac.supabase.co/rest/v1/relatorios?order=criado_em.desc&limit=1&select=*",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzYmR6eHp0bmFicnZmdWJvd2FjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMzA4NDksImV4cCI6MjA5MDkwNjg0OX0.8IUv2Z8-xSFRr6HivcG8RJw8r6FZjFpFCMA92DBGSxk"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzYmR6eHp0bmFicnZmdWJvd2FjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMzA4NDksImV4cCI6MjA5MDkwNjg0OX0.8IUv2Z8-xSFRr6HivcG8RJw8r6FZjFpFCMA92DBGSxk"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "af11e57a-e597-47d3-89f8-46b860a08b8f",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        416,
+        0
+      ],
+      "id": "657a7f43-cd7a-4069-8b6f-32a26bb89240",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "5b97f02c-ebee-4b7c-8faf-a370b6668721",
+  "meta": {
+    "instanceId": "52d761cfee50542f1d45516f1df50104d65258591c8c86e443aaf0e8e515dadf"
+  },
+  "id": "vn6LVlRDf3lmgIrL",
+  "tags": []
+}

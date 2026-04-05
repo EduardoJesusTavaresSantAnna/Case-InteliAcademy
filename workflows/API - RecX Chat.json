@@ -1,0 +1,177 @@
+{
+  "name": "API - RecX Chat",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "recx-chat",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "2cb2cae5-41e3-4fe3-a21d-5f35b575752f",
+      "name": "Webhook",
+      "webhookId": "3b9e881e-3d14-4e55-b7fc-6e25d749b786"
+    },
+    {
+      "parameters": {
+        "url": "https://fsbdzxztnabrvfubowac.supabase.co/rest/v1/relatorios?order=criado_em.desc&limit=2&select=resumo,tendencias,oportunidades,analytics",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzYmR6eHp0bmFicnZmdWJvd2FjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMzA4NDksImV4cCI6MjA5MDkwNjg0OX0.8IUv2Z8-xSFRr6HivcG8RJw8r6FZjFpFCMA92DBGSxk"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "bec40381-7774-48f8-906b-643a5e621bc5",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "const webhookData = $('Webhook').first().json;\nconst httpData = $input.all();\n\nconst area = webhookData.body?.area || 'geral';\nconst mensagem = webhookData.body?.mensagem || '';\nconst historico = webhookData.body?.historico || [];\n\n// Monta contexto dos relatórios\nconst contexto = httpData.map(item => {\n  const r = item.json;\n  return `${r.resumo || ''} ${r.tendencias || ''} ${r.oportunidades || ''}`;\n}).join(' ').slice(0, 2500);\n\n// Formata histórico da conversa\nconst historicoFormatado = historico.map(msg =>\n  `${msg.role === 'user' ? 'Usuário' : 'RecX'}: ${msg.content}`\n).join('\\n');\n\nreturn [{\n  json: {\n    area,\n    mensagem,\n    contexto,\n    historico: historicoFormatado\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "bc76f9f2-376b-46bf-ac20-3e948aff9aaf",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Você é o RecX, um agente especialista em oportunidades de mercado com IA da Inteli Academy. Você tem acesso aos dados mais recentes coletados pelo sistema e conversa diretamente com o usuário para explorar ideias de negócio.\n\nÁrea de interesse atual: {{ $json.area }}\n\nContexto das últimas notícias e tendências de IA coletadas pelo sistema:\n{{ $json.contexto }}\n\nHistórico da conversa:\n{{ $json.historico }}\n\nMensagem atual do usuário:\n{{ $json.mensagem }}\n\nREGRAS:\n- Responda em português de forma direta e conversacional\n- Use os dados do contexto para embasar suas respostas\n- Se for a primeira mensagem, apresente as principais oportunidades para a área escolhida\n- Nas mensagens seguintes, aprofunde os temas que o usuário demonstrar interesse\n- Seja específico — cite empresas, valores e tendências reais do contexto\n- Faça perguntas para entender melhor o que o usuário quer explorar\n- Nunca invente dados que não estão no contexto fornecido",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        624,
+        0
+      ],
+      "id": "f59ef8c7-1fc2-43f4-b1f9-6d60d6887b93",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        624,
+        144
+      ],
+      "id": "8a9d13a4-6bcb-48a9-b1d7-7c0c5453f04b",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "jJjDDqvzfbusOUqr",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        976,
+        0
+      ],
+      "id": "eb14fd63-ffc8-4151-b201-27a9e2a429d3",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "72b56ecc-bffe-4a94-aa3f-96d1af3db147",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "52d761cfee50542f1d45516f1df50104d65258591c8c86e443aaf0e8e515dadf"
+  },
+  "id": "QCuZE7Jm11NbzTRq",
+  "tags": []
+}

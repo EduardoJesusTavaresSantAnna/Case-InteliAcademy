@@ -1,0 +1,181 @@
+{
+  "name": "API - ValdiX",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "validx",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "72cc7c6a-f5da-494c-9934-46e4a4941f0a",
+      "name": "Webhook",
+      "webhookId": "7193ae5c-c83d-40cd-b948-5a1498932b9b"
+    },
+    {
+      "parameters": {
+        "url": "https://fsbdzxztnabrvfubowac.supabase.co/rest/v1/relatorios?order=criado_em.desc&limit=3",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzYmR6eHp0bmFicnZmdWJvd2FjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMzA4NDksImV4cCI6MjA5MDkwNjg0OX0.8IUv2Z8-xSFRr6HivcG8RJw8r6FZjFpFCMA92DBGSxk"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzYmR6eHp0bmFicnZmdWJvd2FjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMzA4NDksImV4cCI6MjA5MDkwNjg0OX0.8IUv2Z8-xSFRr6HivcG8RJw8r6FZjFpFCMA92DBGSxk"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "329b8caa-d647-4b35-89f2-b9274f03725f",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "const webhookData = $('Webhook').first().json;\nconst httpData = $input.all();\n\nconst ideia = webhookData.body?.ideia || '';\nconst historico = webhookData.body?.historico || [];\n\nconst contexto = httpData.map(item => {\n  const r = item.json;\n  return `${r.resumo || ''} ${r.tendencias || ''} ${r.oportunidades || ''}`;\n}).join(' ').slice(0, 2000);\n\nconst historicoFormatado = historico.map(msg => \n  `${msg.role === 'user' ? 'Usuário' : 'ValidX'}: ${msg.content}`\n).join('\\n');\n\nreturn [{\n  json: {\n    ideia,\n    contexto,\n    historico: historicoFormatado\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        384,
+        0
+      ],
+      "id": "e8041068-750d-4966-97c3-088abd1d4b51",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Você é o ValidX, um agente especialista em validação de ideias de negócio com IA, desenvolvido pelo Vector Scouter para a comunidade Inteli Academy.\n\nSeu papel é analisar criticamente ideias de negócio com base em dados reais de mercado, tendências de IA e viabilidade técnica.\n\nContexto das últimas tendências e notícias de IA coletadas pelo sistema:\n{{ $json.contexto }}\n\nHistórico da conversa até agora:\n{{ $json.historico }}\n\nIdeia ou mensagem atual do usuário:\n{{ $json.ideia }}\n\nResponda em português de forma estruturada e direta. Se for a primeira mensagem, faça uma validação completa com as seções:\n\n## ✅ Validação Geral\nDê um veredito claro: Promissora / Viável com ajustes / Alto risco\n\n## 📊 Análise de Mercado\nComo essa ideia se encaixa nas tendências atuais de IA.\n\n## 🛠️ Viabilidade Técnica\nQuais tecnologias de IA seriam necessárias e se estão acessíveis.\n\n## ⚠️ Riscos Principais\nOs 2-3 maiores riscos que o empreendedor deve considerar.\n\n## 🚀 Recomendações\n3 passos concretos para validar essa ideia no mercado.\n\nSe for uma mensagem de follow-up, responda de forma conversacional mantendo o contexto da ideia original.",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        592,
+        0
+      ],
+      "id": "035548d2-7d5a-46cc-a3e5-d1eccad071f4",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        592,
+        160
+      ],
+      "id": "56085cd9-f7b0-4ee0-bc49-5d80b33e489d",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "jJjDDqvzfbusOUqr",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        944,
+        0
+      ],
+      "id": "0904b468-fb0e-474d-bccc-31e33f3ef2a7",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "1d1c1ece-6cc5-471b-95c9-ca55b7db2f7a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "52d761cfee50542f1d45516f1df50104d65258591c8c86e443aaf0e8e515dadf"
+  },
+  "id": "EiWZ98XKNTatF8LE",
+  "tags": []
+}

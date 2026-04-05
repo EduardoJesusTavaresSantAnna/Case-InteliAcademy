@@ -1,0 +1,610 @@
+{
+  "name": "AI_News",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -144,
+        -288
+      ],
+      "id": "3d779371-8695-41b9-8d64-dc22dd1b6502",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://techcrunch.com/category/artificial-intelligence/feed/",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        208,
+        96
+      ],
+      "id": "ec6f92e2-6ba7-44bf-a384-afad160f2fd9",
+      "name": "RSS Read"
+    },
+    {
+      "parameters": {
+        "url": "https://venturebeat.com/category/ai/feed/",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        208,
+        -32
+      ],
+      "id": "1e31be2a-7e2d-4b97-a19a-5e29da5f4fc1",
+      "name": "RSS Read1"
+    },
+    {
+      "parameters": {
+        "url": "https://simonwillison.net/atom/everything/",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        208,
+        -160
+      ],
+      "id": "be0e6d81-e8de-4fea-95e8-55db2b9dbcf2",
+      "name": "RSS Read2"
+    },
+    {
+      "parameters": {
+        "url": "https://www.technologyreview.com/feed/",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        208,
+        -288
+      ],
+      "id": "4667c9fa-6e8b-40e7-becd-f75f084756ec",
+      "name": "RSS Read3"
+    },
+    {
+      "parameters": {
+        "url": "https://www.artificialintelligence-news.com/feed/",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        208,
+        -416
+      ],
+      "id": "9a7e1614-ffd4-4375-9f10-a7025c86f7fb",
+      "name": "RSS Read4"
+    },
+    {
+      "parameters": {
+        "url": "https://bdtechtalks.com/feed/",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        208,
+        -544
+      ],
+      "id": "d6ff86a0-3f2b-4892-b603-06086ea8e6d5",
+      "name": "RSS Read5"
+    },
+    {
+      "parameters": {
+        "url": "https://news.google.com/rss/search?q=artificial+intelligence+site:techcrunch.com+OR+site:wired.com+OR+site:zdnet.com&hl=pt-BR&gl=BR&ceid=BR:pt",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        208,
+        -672
+      ],
+      "id": "3a84ae40-816c-4004-b508-c2dfc9b51091",
+      "name": "RSS Read6"
+    },
+    {
+      "parameters": {
+        "numberInputs": 7
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        576,
+        -368
+      ],
+      "id": "eaa79793-a924-4cb5-9fc5-dbd72ba63d30",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Você é um extrator de informações. Sua única tarefa é extrair fatos concretos das notícias abaixo.\n\nRetorne APENAS um JSON válido, sem markdown, sem explicações.\n\nNotícias:\n{{ $json.noticias_consolidadas }}\n\nFormato de retorno:\n{\n  \"noticias\": [\n    {\n      \"titulo\": \"título exato da notícia\",\n      \"fonte\": \"domínio\",\n      \"data\": \"YYYY-MM-DD\",\n      \"url\": \"url completa\",\n      \"fatos\": [\n        \"fato concreto 1 com números e nomes específicos\",\n        \"fato concreto 2 com números e nomes específicos\",\n        \"fato concreto 3 com números e nomes específicos\"\n      ],\n      \"tecnologias_mencionadas\": [\"lista de IAs, modelos e ferramentas citadas\"],\n      \"setor\": \"setor principal — ex: Biotecnologia, Segurança, Infraestrutura, Negócios\"\n    }\n  ],\n  \"total\": 0\n}\n\nREGRAS:\n- Liste TODAS as notícias recebidas\n- Cada fato deve ter pelo menos um número, nome de empresa ou dado concreto\n- Nunca escreva opiniões ou análises — apenas fatos extraídos do texto\n- tecnologias_mencionadas deve incluir qualquer IA, modelo ou ferramenta citada",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        1168,
+        -288
+      ],
+      "id": "06176347-8a73-440d-aa98-b0ad46feb3cd",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        1168,
+        -128
+      ],
+      "id": "e9282136-cb48-4de3-b4c9-d85fe2f23c71",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "jJjDDqvzfbusOUqr",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst noticias = items.map((item, index) => {\n  const titulo = item.json.titulo || '';\n  const snippet = (item.json.descricao || '')\n    .replace(/<[^>]*>/g, '')\n    .slice(0, 150);\n  const link = item.json.link || '';\n  const dominio = item.json.dominio || '';\n  const data = item.json.data || '';\n  const flag = item.json.tipo === 'antigo' ? ' [+1mês]' : '';\n  return `${index + 1}. [${dominio}${flag}] ${titulo} | ${snippet} | ${link} | ${data}`;\n}).join('\\n');\n\nreturn [{\n  json: {\n    noticias_consolidadas: noticias,\n    total: items.length,\n    dominios: [...new Set(items.map(i => i.json.dominio))].join(', ')\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        976,
+        -288
+      ],
+      "id": "4d7dc295-eb9e-4240-bb74-0c581941f31c",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://fsbdzxztnabrvfubowac.supabase.co/rest/v1/relatorios",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzYmR6eHp0bmFicnZmdWJvd2FjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMzA4NDksImV4cCI6MjA5MDkwNjg0OX0.8IUv2Z8-xSFRr6HivcG8RJw8r6FZjFpFCMA92DBGSxk"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "body": "={\"resumo\": {{ JSON.stringify($json.resumo) }}, \"tendencias\": {{ JSON.stringify($json.tendencias) }}, \"oportunidades\": {{ JSON.stringify($json.oportunidades) }}, \"analytics\": {{ $json.analytics }}, \"periodo\": {{ JSON.stringify($json.periodo) }}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2144,
+        -288
+      ],
+      "id": "9b7e3be8-3b96-484d-a6da-4b8d65db91c6",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "const texto = $json.text || '';\nconst clean = texto.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n\nlet dados;\ntry {\n  dados = JSON.parse(clean);\n} catch(e) {\n  return [{\n    json: {\n      resumo: texto.slice(0, 1000),\n      tendencias: '',\n      oportunidades: '',\n      analytics: '{}',\n      periodo: new Date().toISOString()\n    }\n  }];\n}\n\nconst sanitize = (str) => (str || '')\n  .replace(/\\r/g, ' ')\n  .replace(/\"/g, \"'\")\n  .replace(/\\\\/g, '')\n  .trim();\n\nreturn [{\n  json: {\n    resumo: sanitize(dados.relatorio?.resumo),\n    tendencias: sanitize(dados.relatorio?.tendencias),\n    oportunidades: sanitize(dados.relatorio?.oportunidades),\n    analytics: JSON.stringify(dados.analytics || {}),\n    periodo: new Date().toISOString()\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1984,
+        -288
+      ],
+      "id": "8cccc59f-5903-4ac9-9b41-7305475a16b5",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst dominiosRuins = ['techncruncher', 'blogger.com', 'soundpeats'];\n\nconst limitePorDominio = {\n  'news.ycombinator.com': 2,\n  'news.google.com': 0,\n  'bdtechtalks.com': 3,\n};\n\nconst agora = new Date();\nconst umMesAtras = new Date(agora.getTime() - 30 * 24 * 60 * 60 * 1000);\n\nconst filtrados = items\n  .filter(item => item.json.title && item.json.isoDate)\n  .filter(item => {\n    const link = (item.json.link || '').toLowerCase();\n    return !dominiosRuins.some(d => link.includes(d));\n  })\n  .filter(item => {\n    const snippet = (item.json.contentSnippet || item.json.description || '').trim();\n    return snippet.length > 50;\n  })\n  .filter(item => {\n    const link = item.json.link || '';\n    return !link.includes('news.google.com/rss/articles');\n  });\n\nconst recentes = filtrados\n  .filter(item => new Date(item.json.isoDate) >= umMesAtras)\n  .sort((a, b) => new Date(b.json.isoDate) - new Date(a.json.isoDate));\n\nconst antigos = filtrados\n  .filter(item => new Date(item.json.isoDate) < umMesAtras)\n  .sort((a, b) => new Date(b.json.isoDate) - new Date(a.json.isoDate));\n\nconst contagem = {};\nconst balanceados = [];\nconst dominiosPresentes = new Set();\n\nfor (const item of recentes) {\n  const link = item.json.link || '';\n  const dominio = link.split('/')[2]?.replace('www.', '') || 'desconhecido';\n  const limite = limitePorDominio.hasOwnProperty(dominio) ? limitePorDominio[dominio] : 4;\n  if (limite === 0) continue;\n  contagem[dominio] = (contagem[dominio] || 0) + 1;\n  if (contagem[dominio] <= limite) {\n    balanceados.push({ ...item, dominio, tipo: 'recente' });\n    dominiosPresentes.add(dominio);\n  }\n  if (balanceados.length >= 18) break;\n}\n\nfor (const item of antigos) {\n  if (balanceados.length >= 25) break;\n  const link = item.json.link || '';\n  const dominio = link.split('/')[2]?.replace('www.', '') || 'desconhecido';\n  const limite = limitePorDominio.hasOwnProperty(dominio) ? limitePorDominio[dominio] : 4;\n  if (limite === 0) continue;\n  contagem[dominio] = (contagem[dominio] || 0) + 1;\n  const prioritario = !dominiosPresentes.has(dominio);\n  if (prioritario || contagem[dominio] <= limite) {\n    balanceados.push({ ...item, dominio, tipo: 'antigo' });\n    dominiosPresentes.add(dominio);\n  }\n}\n\nreturn balanceados.map(item => ({\n  json: {\n    titulo: item.json.title || '',\n    link: item.json.link || '',\n    descricao: item.json.contentSnippet || item.json.description || '',\n    dominio: item.dominio,\n    data: item.json.isoDate?.slice(0, 10) || '',\n    tipo: item.tipo\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        784,
+        -288
+      ],
+      "id": "333fcc1e-5d09-46bf-ad22-35124eeb37bf",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const texto = $json.text || '';\nconst clean = texto.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n\nlet dados;\ntry {\n  dados = JSON.parse(clean);\n} catch(e) {\n  return [{ json: { fatos_extraidos: texto, erro: true } }];\n}\n\n// Formata os fatos extraídos de forma compacta para o Call 2\nconst fatosFormatados = dados.noticias.map((n, i) => {\n  const fatos = n.fatos.join(' | ');\n  const techs = n.tecnologias_mencionadas.length > 0 \n    ? ` [Techs: ${n.tecnologias_mencionadas.join(', ')}]` \n    : '';\n  return `${i+1}. [${n.fonte}] [${n.setor}] ${n.titulo}\\nData: ${n.data} | URL: ${n.url}\\nFatos: ${fatos}${techs}`;\n}).join('\\n\\n');\n\nreturn [{\n  json: {\n    fatos_extraidos: fatosFormatados,\n    noticias_raw: JSON.stringify(dados.noticias),\n    total: dados.total\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1456,
+        -288
+      ],
+      "id": "710448dd-23c1-4788-9b47-f9b3143c5be9",
+      "name": "Code in JavaScript3"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Você é um analista sênior de IA da Inteli Academy. Com base nos fatos concretos extraídos abaixo, produza um relatório analítico profundo em português.\n\nREGRAS ABSOLUTAS:\n- Use APENAS os fatos fornecidos — nunca invente dados\n- Seja específico — cite empresas, valores, modelos e datas reais\n- Proibido frases como \"pode indicar\", \"pode levar\", \"está se tornando\"\n- Substitua opiniões por análises baseadas em evidências concretas\n- Retorne APENAS JSON válido sem markdown\n\nFatos extraídos das notícias desta semana:\n{{ $json.fatos_extraidos }}\n\nRetorne neste formato JSON:\n{\n  \"relatorio\": {\n    \"resumo\": \"## Notícias Principais\\n\\n[7 notícias mais relevantes neste formato:]\\n\\n**[N]. [Título]**\\nFonte: [fonte] | Data: [data] | [url]\\n\\nO que aconteceu: [2 frases com fatos concretos, números e nomes específicos]\\nPor que importa: [2 frases explicando impacto real para desenvolvedores e empresas — sem especulação]\\nContexto técnico: [1 frase técnica sobre a tecnologia ou modelo envolvido]\\n\\n---\",\n    \"tendencias\": \"## Tendências Emergentes\\n\\n[4 tendências com nomes específicos e não genéricos:]\\n\\n**[N]. [Nome específico — ex: 'Corrida por Governança de Agentes Autônomos em Empresas']**\\nEvidências: [cite 2-3 fatos concretos das notícias que comprovam essa tendência]\\nAnálise: [3-4 frases explicando o mecanismo e o porquê dessa tendência estar acontecendo agora]\\nImpacto Brasil: [como isso afeta o ecossistema de tecnologia brasileiro]\\nHorizonte: [Curto (0-6m) / Médio (6-18m) / Longo (18m+)]\\n\\n---\",\n    \"oportunidades\": \"## Oportunidades de Mercado\\n\\n[4 oportunidades concretas:]\\n\\n**[N]. [Nome específico da oportunidade]**\\nSetor: [setor]\\nGatilho: [fato específico das notícias que abre essa oportunidade]\\nProposta de valor: [o que desenvolver e para quem — seja específico]\\nModelo de negócio: [como monetizar]\\nBarreira principal: [maior obstáculo técnico ou de mercado]\\nPotencial: [Alto/Médio] — [justificativa baseada nos fatos]\\n\\n---\"\n  },\n  \"analytics\": {\n    \"tematicas\": [\n      {\"nome\": \"IA Generativa\", \"contagem\": 0, \"destaque\": \"fato específico das notícias\"},\n      {\"nome\": \"Agentes de IA\", \"contagem\": 0, \"destaque\": \"fato específico das notícias\"},\n      {\"nome\": \"Segurança em IA\", \"contagem\": 0, \"destaque\": \"fato específico das notícias\"},\n      {\"nome\": \"Infraestrutura de IA\", \"contagem\": 0, \"destaque\": \"fato específico das notícias\"},\n      {\"nome\": \"Visão Computacional\", \"contagem\": 0, \"destaque\": \"fato específico ou Não identificado nesta semana\"},\n      {\"nome\": \"LLMs e Modelos\", \"contagem\": 0, \"destaque\": \"fato específico das notícias\"},\n      {\"nome\": \"IA nos Negócios\", \"contagem\": 0, \"destaque\": \"fato específico das notícias\"},\n      {\"nome\": \"Regulamentação e Ética\", \"contagem\": 0, \"destaque\": \"fato específico ou Não identificado nesta semana\"}\n    ],\n    \"ias_citadas\": [],\n    \"total_noticias\": 0,\n    \"tendencia_principal\": \"frase direta com empresa e dado concreto sobre a maior tendência desta semana\"\n  }\n}\n\nREGRA ias_citadas: Liste TODAS as IAs e ferramentas mencionadas nos fatos no formato {\"nome\": \"nome\", \"contagem\": numero}. Inclua apenas as que aparecem nos fatos fornecidos.",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        1664,
+        -288
+      ],
+      "id": "ba010f0d-9da0-48b6-bfb5-d35d7b9cb434",
+      "name": "Basic LLM Chain1"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        1664,
+        -128
+      ],
+      "id": "64245c26-2750-4799-9b32-cd049409a770",
+      "name": "Groq Chat Model1",
+      "credentials": {
+        "groqApi": {
+          "id": "jJjDDqvzfbusOUqr",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://fsbdzxztnabrvfubowac.supabase.co/rest/v1/newsletter_subscribers?ativo=eq.true&select=email",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzYmR6eHp0bmFicnZmdWJvd2FjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMzA4NDksImV4cCI6MjA5MDkwNjg0OX0.8IUv2Z8-xSFRr6HivcG8RJw8r6FZjFpFCMA92DBGSxk"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2352,
+        -288
+      ],
+      "id": "05014d0d-4afc-4980-9d2e-447a32bf808b",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\n// Pega o relatório salvo anteriormente\nconst relatorio = $('Code in JavaScript1').first().json;\n\nconst data = new Date().toLocaleDateString('pt-BR', {\n  day: '2-digit', month: 'long', year: 'numeric'\n});\n\n// Função de conversão markdown para HTML\nfunction mdToHtml(text) {\n  if (!text) return '';\n  let html = text\n    .replace(/\\\\n/g, '\\n')\n    .replace(/\\r\\n/g, '\\n');\n\n  html = html.replace(/^## .+\\n?/, '');\n\n  html = html.replace(/^\\*\\*(\\d+\\..+?)\\*\\*$/gm,\n    `<div style=\"font-family:Georgia,serif;font-size:16px;font-weight:700;font-style:italic;color:#f0f0f0;margin:28px 0 12px;padding-left:14px;border-left:3px solid #00CED1;line-height:1.4;\">$1</div>`);\n\n  html = html.replace(/\\*\\*(.*?)\\*\\*/g, '<strong style=\"color:#e0e0e0;font-weight:600;\">$1</strong>');\n\n  html = html.replace(/^(Fonte|Data|Setor|Gatilho|Proposta de valor|Modelo de negócio|Barreira principal|Potencial|Evidências|Análise|Impacto Brasil|Horizonte|Contexto técnico|Por que importa|O que aconteceu|Area|Base|Descricao):\\s*(.+)$/gm,\n    `<table cellpadding=\"0\" cellspacing=\"0\" style=\"margin:4px 0;\"><tr><td style=\"font-family:'Helvetica Neue',Arial,sans-serif;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#00CED1;font-weight:600;white-space:nowrap;padding-right:12px;vertical-align:top;padding-top:2px;min-width:100px;\">$1</td><td style=\"font-size:12px;color:#888;font-weight:300;line-height:1.6;\">$2</td></tr></table>`);\n\n  html = html.replace(/(https?:\\/\\/[^\\s<\"]+)/g,\n    '<a href=\"$1\" style=\"color:#00CED1;text-decoration:none;font-size:11px;\">↗ Ver fonte</a>');\n\n  html = html.replace(/^---+$/gm,\n    '<div style=\"border-top:1px solid #1e1e1e;margin:28px 0;\"></div>');\n\n  const blocks = html.split(/\\n{2,}/);\n  html = blocks.map(block => {\n    block = block.trim();\n    if (!block) return '';\n    if (block.startsWith('<div') || block.startsWith('<a') || block.startsWith('<table')) return block;\n    const lines = block.split('\\n').filter(l => l.trim());\n    if (!lines.length) return '';\n    return `<p style=\"font-size:13px;line-height:1.85;color:#888;font-weight:300;margin:8px 0;\">${lines.join('<br>')}</p>`;\n  }).join('\\n');\n\n  return html;\n}\n\nconst resumoHtml = mdToHtml(relatorio.resumo || '');\nconst tendenciasHtml = mdToHtml(relatorio.tendencias || '');\nconst oportunidadesHtml = mdToHtml(relatorio.oportunidades || '');\n\nconst htmlEmail = `<!DOCTYPE html>\n<html lang=\"pt-BR\">\n<head>\n<meta charset=\"UTF-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n<title>Vector Scouter — Relatório Semanal de IA</title>\n</head>\n<body style=\"margin:0;padding:0;background:#0a0a0a;font-family:'Helvetica Neue',Arial,sans-serif;\">\n<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#0a0a0a;padding:40px 20px;\">\n<tr><td align=\"center\">\n<table width=\"640\" cellpadding=\"0\" cellspacing=\"0\">\n  <tr><td style=\"border-bottom:1px solid #1e1e1e;padding-bottom:24px;\">\n    <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n      <tr>\n        <td style=\"padding-top:24px;\">\n          <span style=\"background:#00CED1;color:#0a0a0a;font-size:10px;font-weight:700;letter-spacing:2px;padding:6px 12px;border-radius:4px;\">VS</span>\n          <span style=\"font-family:Georgia,serif;font-size:17px;font-style:italic;color:#00CED1;margin-left:12px;\">Vector Scouter</span>\n        </td>\n        <td align=\"right\" style=\"padding-top:24px;\">\n          <span style=\"font-family:'Helvetica Neue',Arial,sans-serif;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#444;\">${data}</span>\n        </td>\n      </tr>\n    </table>\n  </td></tr>\n  <tr><td style=\"padding:56px 0 48px;\">\n    <div style=\"font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#00CED1;margin-bottom:20px;\">AI Intelligence Hub · Inteli Academy</div>\n    <h1 style=\"font-family:Georgia,serif;font-size:48px;font-weight:700;font-style:italic;color:#f0f0f0;margin:0 0 20px;line-height:1.05;letter-spacing:-2px;\">O que está<br>acontecendo em <span style=\"color:#00CED1;\">IA</span></h1>\n    <p style=\"font-size:14px;color:#666;line-height:1.8;margin:0 0 32px;font-weight:300;\">Notícias, tendências e oportunidades no mundo da IA — curadas automaticamente para quem quer estar à frente.</p>\n  </td></tr>\n  <tr><td style=\"border-top:1px solid #1e1e1e;\"></td></tr>\n  <tr><td style=\"padding:48px 0 40px;\">\n    <div style=\"font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#00CED1;border-left:3px solid #00CED1;padding-left:12px;margin-bottom:32px;\">Notícias Principais</div>\n    ${resumoHtml}\n  </td></tr>\n  <tr><td style=\"border-top:1px solid #1e1e1e;\"></td></tr>\n  <tr><td style=\"padding:48px 0 40px;\">\n    <div style=\"font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#FFD700;border-left:3px solid #FFD700;padding-left:12px;margin-bottom:32px;\">Tendências Emergentes</div>\n    ${tendenciasHtml}\n  </td></tr>\n  <tr><td style=\"border-top:1px solid #1e1e1e;\"></td></tr>\n  <tr><td style=\"padding:48px 0 40px;\">\n    <div style=\"font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#00CED1;border-left:3px solid #00CED1;padding-left:12px;margin-bottom:32px;\">Oportunidades de Mercado</div>\n    ${oportunidadesHtml}\n  </td></tr>\n  <tr><td style=\"padding:0 0 48px;\">\n    <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#111;border:1px solid #1e1e1e;border-radius:8px;\">\n      <tr><td style=\"padding:32px 36px;\">\n        <div style=\"font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#00CED1;margin-bottom:12px;\">Explore mais</div>\n        <div style=\"font-family:Georgia,serif;font-size:20px;font-style:italic;color:#f0f0f0;margin-bottom:8px;\">RecX Engine & ValidX</div>\n        <p style=\"font-size:12px;color:#666;line-height:1.7;margin:0 0 24px;font-weight:300;\">Use o RecX para descobrir oportunidades e o ValidX para validar suas ideias com dados reais.</p>\n        <a href=\"http://localhost:5678\" style=\"display:inline-block;background:#00CED1;color:#0a0a0a;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:12px 24px;border-radius:4px;text-decoration:none;\">Acessar plataforma →</a>\n      </td></tr>\n    </table>\n  </td></tr>\n  <tr><td style=\"border-top:1px solid #1e1e1e;padding:24px 0;\">\n    <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n      <tr>\n        <td><span style=\"font-family:Georgia,serif;font-size:13px;font-style:italic;color:#00CED1;\">Vector Scouter</span>\n        <div style=\"font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#333;margin-top:4px;\">The Illuminated Archive · Inteli Academy</div></td>\n        <td align=\"right\"><span style=\"font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#333;\">Relatório Semanal de IA</span></td>\n      </tr>\n    </table>\n  </td></tr>\n</table>\n</td></tr>\n</table>\n</body>\n</html>`;\n\n// Retorna um item por email cadastrado\nreturn items.map(item => ({\n  json: {\n    email: item.json.email,\n    htmlEmail,\n    assunto: `Vector Scouter — Relatório Semanal de IA · ${data}`\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2560,
+        -288
+      ],
+      "id": "a5101679-cc7a-4fac-8394-b89e85fc4088",
+      "name": "Code in JavaScript4"
+    },
+    {
+      "parameters": {
+        "fromEmail": "eduardo.santanna@sou.inteli.edu.br",
+        "toEmail": "={{ $json.email }}",
+        "subject": "={{ $json.assunto }}",
+        "html": "={{ $json.htmlEmail }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        2768,
+        -288
+      ],
+      "id": "a2506799-e431-4602-9f4d-8e2ef7d0da1d",
+      "name": "Send an Email",
+      "webhookId": "ee9a391a-ae29-4b4e-9aba-0aae3ee8af34",
+      "credentials": {
+        "smtp": {
+          "id": "ixw10UZ95kqvsPA5",
+          "name": "SMTP account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "RSS Read",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS Read2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS Read1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS Read3",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS Read4",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS Read5",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS Read6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Read1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 5
+          }
+        ]
+      ]
+    },
+    "RSS Read2": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 4
+          }
+        ]
+      ]
+    },
+    "RSS Read5": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "RSS Read4": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "RSS Read3": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "RSS Read": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 6
+          }
+        ]
+      ]
+    },
+    "RSS Read6": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript3": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript4": {
+      "main": [
+        [
+          {
+            "node": "Send an Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "9b316376-6d72-4843-8afb-f3b5763ebb6b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "52d761cfee50542f1d45516f1df50104d65258591c8c86e443aaf0e8e515dadf"
+  },
+  "id": "42q6aTiGV8g1iToN",
+  "tags": []
+}
